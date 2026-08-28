@@ -1,0 +1,11 @@
+[
+  {"name": "date", "type": "DATE", "mode": "REQUIRED"},
+  {"name": "campaign_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "campaign_name", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "spend", "type": "NUMERIC", "mode": "NULLABLE"},
+  {"name": "installs", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "cpi", "type": "NUMERIC", "mode": "NULLABLE"},
+  {"name": "impressions", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "reach", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "loaded_at", "type": "TIMESTAMP", "mode": "NULLABLE"}
+]

@@ -1,0 +1,25 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.json
+!bigquery/load_schema.json
+bigquery/data/*
+!bigquery/data/.gitkeep
+inbox/*
+!inbox/.gitkeep
+logs/
+bigquery/data/branch_upload_*.csv
+bigquery/data/summary-table-export_*.csv
+bigquery/data/branch_auth_state.json
+bigquery/data/branch_login_*.png
+bigquery/data/branch_export_debug.png
+bigquery/data/branch_auth0_*.png
+bigquery/data/branch_after_*.png
+bigquery/data/_recording_frames/
+bigquery/data/*.csv
+# keep seed / source exports local if desired; do not commit secrets
+service-account*.json
+*-sa.json

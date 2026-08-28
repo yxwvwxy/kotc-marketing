@@ -1,0 +1,65 @@
+name: Daily Branch → BigQuery Sync
+
+on:
+  schedule:
+    - cron: "15 12 * * *"
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: "Days to re-sync (ending yesterday)"
+        required: false
+        default: "7"
+      start:
+        description: "Optional start date YYYY-MM-DD"
+        required: false
+        default: ""
+      end:
+        description: "Optional end date YYYY-MM-DD"
+        required: false
+        default: ""
+
+concurrency:
+  group: daily-branch-bq-sync
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: dashboard
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Run Branch browser → BigQuery sync
+        env:
+          BRANCH_EMAIL: ${{ secrets.BRANCH_EMAIL }}
+          BRANCH_PASSWORD: ${{ secrets.BRANCH_PASSWORD }}
+          BRANCH_SUMMARY_URL: ${{ secrets.BRANCH_SUMMARY_URL }}
+          BRANCH_HEADED: "0"
+          BQ_PROJECT_ID: kotc-dashboard-auto-update
+          BQ_DATASET: branch
+          BQ_TABLE: daily_campaign_metrics
+          SYNC_LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '7' }}
+          SYNC_TIMEZONE: America/New_York
+        run: |
+          ARGS=()
+          if [ -n "${{ github.event.inputs.start }}" ] && [ -n "${{ github.event.inputs.end }}" ]; then
+            ARGS+=(--start "${{ github.event.inputs.start }}" --end "${{ github.event.inputs.end }}")
+          fi
+          python -m src.sync_daily "${ARGS[@]}"

@@ -1,0 +1,4 @@
+# Only needed to actually write Meta rows to BigQuery (src/meta_to_bigquery.py).
+# Daily Slack report does not use this file.
+google-cloud-bigquery>=3.34.0
+google-auth>=2.0.0
