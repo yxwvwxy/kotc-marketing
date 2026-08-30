@@ -10,8 +10,7 @@ Paired with KOTC Meta Monitor `src/meta_to_bigquery.py`, which writes Meta
 spend/CPI into `kotc-dashboard-auto-update.meta.daily_campaign_metrics`.
 Join view (not applied): `bigquery/views/meta_branch_campaign_daily.sql`.
 
-Standalone — not wired into Slack. Existing GitHub Action still runs
-`src.sync_daily`; this file is the explicit Branch→BQ program.
+Standalone — not scheduled. Inbox drag-and-drop is what writes BigQuery locally.
 
 Leave EXECUTE_LOAD as False so this never queries Branch or writes BigQuery.
 """

@@ -6,12 +6,12 @@
 	<string>com.kotc.branch-inbox-watch</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/vivienneyang/Projects/kotc-marketing-dashboard-update/.venv/bin/python</string>
+		<string>PYTHON_PLACEHOLDER</string>
 		<string>-m</string>
 		<string>src.watch_inbox</string>
 	</array>
 	<key>WorkingDirectory</key>
-	<string>/Users/vivienneyang/Projects/kotc-marketing-dashboard-update</string>
+	<string>ROOT_PLACEHOLDER</string>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>KeepAlive</key>
@@ -21,9 +21,9 @@
 	<key>ProcessType</key>
 	<string>Interactive</string>
 	<key>StandardOutPath</key>
-	<string>/Users/vivienneyang/Projects/kotc-marketing-dashboard-update/logs/inbox-watch.log</string>
+	<string>LOG_PLACEHOLDER</string>
 	<key>StandardErrorPath</key>
-	<string>/Users/vivienneyang/Projects/kotc-marketing-dashboard-update/logs/inbox-watch.err.log</string>
+	<string>ERR_PLACEHOLDER</string>
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key>

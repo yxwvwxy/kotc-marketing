@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Move files into project inbox/ (used by Finder Quick Action).
 set -euo pipefail
-INBOX="/Users/vivienneyang/Projects/kotc-marketing-dashboard-update/inbox"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+INBOX="$ROOT/inbox"
 mkdir -p "$INBOX"
 
 if [ "$#" -eq 0 ]; then

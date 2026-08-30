@@ -1,29 +1,53 @@
 #!/usr/bin/env bash
-# Install a macOS LaunchAgent that watches inbox/ in the background
-# (no Cursor / Terminal window needed; starts at login).
+# Install a macOS LaunchAgent that watches inbox/ in the background.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LABEL="com.kotc.branch-inbox-watch"
-PLIST_SRC="$ROOT/scripts/${LABEL}.plist"
 PLIST_DST="$HOME/Library/LaunchAgents/${LABEL}.plist"
+PYTHON="$ROOT/.venv/bin/python"
 
-if [ ! -x "$ROOT/.venv/bin/python" ]; then
+if [ ! -x "$PYTHON" ]; then
   echo "Missing $ROOT/.venv — run ./scripts/setup_local.sh first"
   exit 1
 fi
 
 mkdir -p "$ROOT/logs" "$ROOT/inbox" "$HOME/Library/LaunchAgents"
-# Rewrite WorkingDirectory / paths for this machine's ROOT
-python3 - <<PY
-from pathlib import Path
-root = Path("$ROOT")
-src = Path("$PLIST_SRC")
-text = src.read_text()
-# ensure absolute paths in installed copy match this checkout
-dst = Path("$PLIST_DST")
-dst.write_text(text)
-print(f"Installed: {dst}")
-PY
+
+cat > "$PLIST_DST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>${LABEL}</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>${PYTHON}</string>
+		<string>-m</string>
+		<string>src.watch_inbox</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>${ROOT}</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>LimitLoadToSessionType</key>
+	<string>Aqua</string>
+	<key>ProcessType</key>
+	<string>Interactive</string>
+	<key>StandardOutPath</key>
+	<string>${ROOT}/logs/inbox-watch.log</string>
+	<key>StandardErrorPath</key>
+	<string>${ROOT}/logs/inbox-watch.err.log</string>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+</dict>
+</plist>
+EOF
 
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST_DST"
