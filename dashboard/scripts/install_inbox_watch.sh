@@ -13,6 +13,9 @@ fi
 
 mkdir -p "$ROOT/logs" "$ROOT/inbox" "$HOME/Library/LaunchAgents"
 
+DOWNLOADS_INBOX="$HOME/Downloads/KOTC-inbox"
+ln -sfn "$ROOT/inbox" "$DOWNLOADS_INBOX"
+
 cat > "$PLIST_DST" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -61,5 +64,6 @@ else
   echo "Started LaunchAgent $LABEL (check logs if imports fail)."
 fi
 echo "Inbox:  $ROOT/inbox"
+echo "Drop:   $DOWNLOADS_INBOX"
 echo "Logs:   $ROOT/logs/inbox-watch.log"
 echo "Stop:   ./scripts/uninstall_inbox_watch.sh"
