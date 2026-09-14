@@ -111,6 +111,7 @@ FIELD_MAP = {
     "clicks": "clicks",
     "installs": "installs",
     "register": "register",
+    "registered": "register",
     "complete registration": "complete_registration",
     "complete_registration": "complete_registration",
     "initiate purchases": "initiate_purchases",
@@ -130,6 +131,7 @@ FIELD_MAP = {
     "rc_cancellation_event": "rc_cancellation_event",
     "rc_trial_started_event": "rc_trial_started_event",
     "rc_product_change_event": "rc_product_change_event",
+    "rc_productchange_event": "rc_product_change_event",
     # Already-normalized upload CSV names
     "ad_partner": "ad_partner",
     "ad_partner_3p": "ad_partner_3p",
@@ -144,7 +146,6 @@ REQUIRED_FIELDS: list[tuple[str, str]] = [
     ("ad_partner_3p", "ad partner (3p)"),
     ("clicks", "clicks"),
     ("installs", "installs"),
-    ("register", "REGISTER"),
     ("complete_registration", "COMPLETE_REGISTRATION"),
     ("initiate_purchases", "INITIATE_PURCHASE"),
     ("purchases", "PURCHASE"),
@@ -152,6 +153,11 @@ REQUIRED_FIELDS: list[tuple[str, str]] = [
     ("revenue", "revenue"),
     ("ecpi", "eCPI"),
     ("ecpc", "eCPC"),
+]
+
+# Still written to BigQuery (as NULL) when Branch no longer exposes the column
+OPTIONAL_FIELDS: list[tuple[str, str]] = [
+    ("register", "REGISTER"),
     ("rc_trial_cancelled_event", "rc_trial_cancelled_event"),
     ("rc_expiration_event", "rc_expiration_event"),
     ("rc_cancellation_event", "rc_cancellation_event"),
@@ -256,15 +262,20 @@ def mapped_fields_from_headers(header_keys: set[str]) -> set[str]:
     return present
 
 
-def missing_required_columns(path: Path) -> list[str]:
-    """Return Branch-style labels for required columns missing from the export."""
+def _missing_labels(path: Path, fields: list[tuple[str, str]]) -> list[str]:
     header_keys = read_header_keys(path)
     present = mapped_fields_from_headers(header_keys)
-    missing = []
-    for dest, label in REQUIRED_FIELDS:
-        if dest not in present:
-            missing.append(label)
-    return missing
+    return [label for dest, label in fields if dest not in present]
+
+
+def missing_required_columns(path: Path) -> list[str]:
+    """Return Branch-style labels for required columns missing from the export."""
+    return _missing_labels(path, REQUIRED_FIELDS)
+
+
+def missing_optional_columns(path: Path) -> list[str]:
+    """Return labels for optional columns Branch no longer always exports."""
+    return _missing_labels(path, OPTIONAL_FIELDS)
 
 
 def convert_to_rows(path: Path) -> tuple[list[dict[str, Any]], int]:

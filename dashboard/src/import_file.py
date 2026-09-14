@@ -116,6 +116,13 @@ def import_export(
             "请在 Branch Customize Columns / Compare by 补齐后再导出。"
         )
 
+    optional_missing = convert_mod.missing_optional_columns(export_path)
+    if optional_missing:
+        print(
+            "Optional columns missing in export (written as null): "
+            + ", ".join(optional_missing)
+        )
+
     print(f"Importing: {export_path}")
 
     rows, skipped = convert_mod.convert_to_rows(export_path)

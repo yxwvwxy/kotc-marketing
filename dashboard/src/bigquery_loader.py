@@ -47,6 +47,16 @@ INT_COLS = {
     "rc_product_change_event",
 }
 
+# Missing Branch events stay NULL — do not invent 0.
+NULLABLE_INT_COLS = {
+    "register",
+    "rc_trial_cancelled_event",
+    "rc_expiration_event",
+    "rc_cancellation_event",
+    "rc_trial_started_event",
+    "rc_product_change_event",
+}
+
 MONEY_COLS = {"cost", "revenue", "ecpi", "cpp", "ecpc"}
 
 
@@ -70,7 +80,10 @@ def _prepare_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         item["ad_partner_3p"] = r.get("ad_partner_3p")
         for c in INT_COLS:
             v = r.get(c)
-            item[c] = int(v) if v not in (None, "") else 0
+            if v not in (None, ""):
+                item[c] = int(v)
+            else:
+                item[c] = None if c in NULLABLE_INT_COLS else 0
         for c in MONEY_COLS:
             item[c] = _to_number(r.get(c), default_zero=(c not in ratio_cols))
         item["loaded_at"] = r.get("loaded_at") or now
