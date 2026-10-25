@@ -1,6 +1,6 @@
 # KOTC Marketing
 
-This repo monitors Meta ads, sends a Slack report, and flags and turns off underperforming ads. It also connects the MMP to BigQuery for the Looker Studio dashboard.
+This repo monitors Meta ads, sends a Slack report, and flags and turns off underperforming ads. It also connects the MMP to BigQuery for the Data Studio dashboard.
 
 ![Meta connects to Branch.io, then BigQuery and Data Studio. Meta also connects directly to Slack.](assets/kotc-data-flow.png)
 
@@ -15,7 +15,7 @@ dashboard/      inbox drag-and-drop → BigQuery (running locally)
                 branch_to_bigquery.py (not running)
 ```
 
-Looker: [KOTC Performance Dashboard](https://datastudio.google.com/reporting/e7ebe541-bb73-4592-a0ca-6b69f654635b/page/mkyEE)
+Data Studio Dashboard: [KOTC Performance Dashboard](https://datastudio.google.com/reporting/317a5d82-23e2-4d51-9d52-1c692aa953fc/page/mkyEE)
 
 ## Running
 
