@@ -1,5 +1,7 @@
 # KOTC Marketing Dashboard Update
 
+> **Retired 2026-11-02.** No new Branch data will be loaded. The final data is in the Google Sheet [Branch Data MCAT App](https://docs.google.com/spreadsheets/d/1-H_EV3dqF62blGc4p2F7CwQvInbGbgQT7TvsFmkgnhs/edit), which the MCAT pages of the dashboard read. The BigQuery table was exported to `bigquery/data/bq_backup_branch_daily_campaign_metrics_2026-11-02.csv` (local only) before the free trial ended, and the inbox watcher was uninstalled (`./scripts/install_inbox_watch.sh` puts it back). Everything below describes how the pipeline worked.
+
 MMP → BigQuery → Looker Studio.
 
 Loads Branch (MMP) campaign metrics into `kotc-dashboard-auto-update.branch.daily_campaign_metrics` for Looker Studio.
@@ -26,7 +28,7 @@ Slack report + flag/pause ads              Branch MMP → BigQuery
 
 Meta can also land in `meta.daily_campaign_metrics` (`EXECUTE_LOAD = False`). Join SQL: `bigquery/views/meta_branch_campaign_daily.sql` (not applied).
 
-`daily-branch-sync.yml` is the **old live job**: Playwright login → last 7 days Branch CSV → replace those dates in BigQuery. Still what Looker reads today. The new connected job is `connected-meta-mmp.yml` (manual only, does not write while `EXECUTE_LOAD` is False).
+`daily-branch-sync.yml` was the original scheduled job (in the old `kotc-marketing-dashboard-update` repo, not this one): Playwright login → last 7 days Branch CSV → replace those dates in BigQuery. `connected-meta-mmp.yml` was a manual-only follow-up that never wrote while `EXECUTE_LOAD` was False. Neither workflow exists in this repo; after the merge, data came in through the inbox watcher below.
 
 ## Credentials
 
@@ -57,7 +59,7 @@ Do not commit `.env` or the service-account JSON.
 ./scripts/sync.sh        # replace last 7 days in BigQuery
 ```
 
-Manual file: drop a Branch export in `inbox/` or:
+Manual file: drop a Branch export in `inbox/` (the LaunchAgent from `./scripts/install_inbox_watch.sh` imports it, **appends** rows without de-duplicating, and deletes the file on success) or:
 
 ```bash
 python3 bigquery/convert_branch_export.py ~/Downloads/summary-table-export.csv
