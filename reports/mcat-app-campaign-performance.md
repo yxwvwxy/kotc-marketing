@@ -4,6 +4,8 @@ A new Looker Studio report, built 2026-11-04. It is separate from the KOTC Perfo
 
 - Report: [MCAT App Campaign Performance](https://lookerstudio.google.com/reporting/25d33782-219b-4456-8e65-4beb8e66830c). It is private to the owner and has not been shared.
 - Data: an embedded data source on the Sheet [Branch Data MCAT App](https://docs.google.com/spreadsheets/d/1-H_EV3dqF62blGc4p2F7CwQvInbGbgQT7TvsFmkgnhs/edit), `Sheet1`. The report reads the Sheet with the owner's credentials.
+- Funnel data: a second data source on the same Sheet's `Funnel Steps` tab, used only by the funnel chart. Looker Studio's funnel chart needs one row per step, so a single formula in `Funnel Steps!A1` turns the step columns of `Sheet1` into rows: Date, Ad Partner, Campaign, Platform, Step Order (1–5), Step and Count, with zero-count rows dropped. It recalculates when `Sheet1` changes. Its totals per step matched `Sheet1` exactly on 2026-11-08 (Clicks 1,038,944, Installs 99,400, Register 33,913, Initiate Purchases 2,005, Purchases 3,226). The chart sorts by MIN(Step Order). The Ad Partner filter and the date range both apply to it.
+- Table headers: every table has header text wrapping turned on, so the full column names show instead of "…".
 - Context: MCAT is a to-C subscription app. The Branch data uses a 7-day attribution window. That window was set when the data was exported from Branch, so the report only labels it and cannot change it.
 
 ## Layout
@@ -13,7 +15,7 @@ Every page shares the same report-level header and filters: Ad Partner, Platform
 | Page | Contents |
 |---|---|
 | Overview | 10 scorecards (Cost, Installs, CPI, Purchases, CPP, Revenue, ROAS, Clicks, CPC, Trial Starts), each showing the change vs. the previous period. CPI, CPP and CPC use inverted colors: down is green. A daily trend chart has a previous-period line. Its optional metrics let viewers switch between 12 metrics with the metric icon on the chart. |
-| Funnel | Step counts: Clicks → Installs → Register → Initiate Purchases → Purchases. Step rates: Install → Purchase, Install Rate, Register Rate, Checkout Rate, Checkout → Purchase. A funnel table by Ad Partner, and daily conversion-rate lines. |
+| Funnel | Step counts: Clicks → Installs → Register → Initiate Purchases → Purchases. Step rates: Install → Purchase, Install Rate, Register Rate, Checkout Rate, Checkout → Purchase. A funnel table by Ad Partner, and a funnel chart (Clicks → Installs → Register → Initiate Purchases → Purchases) that labels each step with its count and its % of the previous step. The funnel chart replaced the daily conversion-rate lines on 2026-11-08. |
 | By Ad Partner | A heatmap table of all core metrics by partner, Cost vs. Revenue bars, CPI vs. CPP bars, and a daily trend split by partner (with optional metrics). |
 | By Campaign | A heatmap table by Ad Partner × Campaign (paginated), plus bar charts of Cost by campaign and ROAS by campaign. |
 | Health | Placeholder. The planned metrics are Impressions, Reach, Frequency, CPM and CTR. |
@@ -58,4 +60,5 @@ Calculated fields:
 
 - Health and Top Ads have no data source yet.
 - The By Campaign table has a fixed height and is paginated.
-- The funnel is built from scorecards rather than a funnel chart. Looker Studio's funnel chart needs one row per step, and the Sheet has one column per step.
+- In the funnel chart, Clicks is far larger than the later steps (15,782 vs. 278 purchases in July 2026), so the bars after Clicks render as thin lines. The owner chose on 2026-11-08 to keep Clicks as the first step anyway.
+- The By Ad Partner and By Campaign tables have header wrapping on, but some columns may still be narrow enough to break a word such as "Purchases" mid-word. This was not checked in view mode, because Google showed a reCAPTCHA. The By Ad Partner table's header font was changed from 14px to 12px.
