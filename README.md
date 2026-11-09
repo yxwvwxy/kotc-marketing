@@ -12,9 +12,13 @@ meta-monitor/   Slack daily + weekly report (running)
 dashboard/      Branch → BigQuery (retired 2026-11-02)
                 inbox drag-and-drop watcher (removed)
                 branch_to_bigquery.py (not running)
+
+reports/        Looker Studio report notes
 ```
 
 Data Studio Dashboard: [KOTC Performance Dashboard](https://datastudio.google.com/reporting/317a5d82-23e2-4d51-9d52-1c692aa953fc/page/mkyEE)
+
+New report (2026-11-04): [MCAT App Campaign Performance](https://lookerstudio.google.com/reporting/25d33782-219b-4456-8e65-4beb8e66830c). It covers key metrics with a switchable trend, the funnel, a breakdown by ad partner, and a breakdown by campaign. The Health and Top Ads pages are placeholders. Layout, field formulas and data caveats are in [reports/mcat-app-campaign-performance.md](reports/mcat-app-campaign-performance.md).
 
 ## Current status (2026-11-02)
 
