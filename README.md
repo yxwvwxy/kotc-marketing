@@ -1,95 +1,46 @@
 # KOTC Marketing
 
-This repo monitors Meta ads, sends a Slack report, and flags and turns off underperforming ads. It also connected the MMP (Branch) to BigQuery for the Data Studio dashboard — that pipeline is retired as of 2026-11-02 (see below).
+Marketing reporting for the KOTC MCAT app. Meta (Facebook & Instagram) app install campaigns are checked every day and summarized in Slack, with high-CPI ads flagged. Campaign data from the MMP (Branch.io) feeds a Looker Studio dashboard.
 
-Local folder and GitHub repo are the same name: `kotc-marketing`.
+<img src="assets/kotc-data-flow.png" alt="Meta connects to Branch.io, then BigQuery and Data Studio. Meta also connects directly to Slack." width="520">
 
 ```text
-meta-monitor/   Slack daily + weekly report (running)
-                flag 7-day CPI > $8
-                pause_flagged_ads.py (not running)
-
-dashboard/      Branch → BigQuery (retired 2026-11-02)
-                inbox drag-and-drop watcher (removed)
-                branch_to_bigquery.py (not running)
-
-reports/        Looker Studio report notes
+meta-monitor/   Daily and weekly Slack report from the Meta Marketing API
+                flags ads whose 7-day CPI is above the threshold
+                pause_flagged_ads.py can turn those ads off
+dashboard/      Branch → BigQuery loader for the dashboard data
 ```
 
-Data Studio Dashboard: KOTC Performance Dashboard (real data, so its link is not kept in this repo).
+## Demo dashboard
 
-New report (2026-11-04): MCAT App Campaign Performance (real data, so its link is not kept in this repo). It covers key metrics with a switchable trend, the funnel, a breakdown by ad partner, and a breakdown by campaign. The Health and Top Ads pages are placeholders. Layout, field formulas and data caveats are in [reports/mcat-app-campaign-performance.md](reports/mcat-app-campaign-performance.md).
+[MCAT App Campaign Performance Dashboard Demo](https://lookerstudio.google.com/reporting/41c3492f-5bfd-42f8-bf50-79a8c8802ca2) (Looker Studio, sample data)
 
-Mockup (2026-11-10): [MCAT App Campaign Performance Mockup](https://claude.ai/artifact/5wNnws224sAZE7XP6ehRV1). A static, sample-data design of the report above. It assumes about $350k of spend a month, and every number in it is made up. It fills in the Health and Top Ads pages, and its funnel is Installs → Register → Trial Starts → Purchases. It is private to the owner until shared.
+Pages: Overview, Funnel (Installs → Register → Trial Starts → Purchases), By Ad Partner, By Campaign, Health (impressions, reach, frequency, CPM, CTR) and Top Ads. Every number is simulated: one month of about $350k spend across Facebook, TikTok, Google Search Ads and Apple Search Ads, compared with the previous period.
 
-Demo (2026-11-10): [MCAT App Campaign Performance Dashboard Demo](https://lookerstudio.google.com/reporting/41c3492f-5bfd-42f8-bf50-79a8c8802ca2). A copy of the report above that reads the sample-data Sheet [MCAT App Campaign Performance Dashboard Demo Data](https://docs.google.com/spreadsheets/d/1yJotAZ1UBTn9lE5so7YsuKIjR1T1USKOA0OFRjdbDko/edit) instead of Branch data. The Sheet holds one month (July 2026) of made-up numbers that match the mockup.
+<img src="assets/demo-dashboard-overview.png" alt="Demo dashboard Overview page: ten metric cards with changes vs. the previous period and a daily cost trend" width="720">
 
-## Current status (2026-11-02)
+## Slack daily report
 
-No new Branch data will be added. The final Branch data lives in the Google Sheet Branch Data MCAT App (`Sheet1`; real data, so its link is not kept in this repo):
+Posted every morning for yesterday's Meta app install campaigns, followed by a list of ads whose CPI over the past 7 days is above the threshold. Example with sample data and a $5 threshold:
 
-- 13,703 rows, 2024-04-15 → 2026-09-30, same columns as the old BigQuery table.
-- Checked row by row against BigQuery on 2026-11-02: identical, except BigQuery `NULL`s are `0` in the Sheet.
-- The BigQuery free trial is ending. A full export of `branch.daily_campaign_metrics` is kept locally at `dashboard/bigquery/data/bq_backup_branch_daily_campaign_metrics_2026-11-02.csv` (gitignored).
-- The inbox LaunchAgent (`com.kotc.branch-inbox-watch`) was uninstalled.
-
-Dashboard pages and their data:
-
-Both sheets the dashboard reads are owned by vivienneyang710@gmail.com:
-
-| Data Studio data source | Sheet | Used by |
-|---|---|---|
-| `MCAT App` | Branch Data MCAT App (through 2026-09-30) | MCAT Overall, MCAT Campaign, Magnitude Digital, and the NCLEX page's Ad Partner / Platform dropdowns |
-| `NCLEX` | Branch Data NCLEX | NCLEX Overall charts |
-
-The dashboard never read BigQuery directly. Until 2026-11-02 it read copies of these sheets owned by another account (the MCAT copy stopped at 2026-07-29; the NCLEX copy was identical to the new one, 723 rows), and MCAT Overall was broken: 4 components were on a Supabase PostgreSQL source (`daily_campaign_metrics`) and its CPI / CPP / CPC formulas used the Supabase field names. On 2026-11-02:
-
-- `MCAT App` and `NCLEX` were reconnected to the sheets above; the Magnitude page picks up Aug–Sep 2026 as a result.
-- The 4 Supabase components were moved to `MCAT App`; every CPI / CPP / CPC formula is now `SUM(Cost) / SUM(Installs | Purchases | Clicks)`.
-- MCAT Overall's default date range is "Auto" (all data) instead of the last 30 days.
-- MCAT Campaign: the Meta table's CPI is `SUM(Cost) / SUM(Installs)` (it was summing per-row ratios) and its duplicate CPI column is now Cost; the Apple Search Ads table got an `Ad Partner = Apple Search Ads` filter and a computed CPI.
-- Totals were checked against the Sheet. The version before these changes is saved in Data Studio's version history as "Before Sheet fix 2026-11-02". `daily_campaign_metrics` (Supabase) is no longer used by any chart.
+<img src="assets/slack-daily-report-demo.png" alt="Sample Slack daily report for 07/30/2026 with seven Meta campaigns and three ads flagged for CPI over $5" width="720">
 
 ## Running
 
-**Slack report** — GitHub Actions, preview locally:
+Slack reports run on GitHub Actions:
 
-- `daily-report.yml` — every day 8:05 AM ET (yesterday's campaigns + 7-day CPI flags)
-- `weekly-report.yml` — Fridays 4:05 PM ET (past 7 days)
+- `daily-report.yml`: every day at 8:05 AM ET (yesterday's campaigns and 7-day CPI flags)
+- `weekly-report.yml`: Fridays at 4:05 PM ET (past 7 days)
+
+Preview locally:
 
 ```bash
 cd meta-monitor
-python src/monitor.py
 python scripts/preview_report.py
 ```
 
-## Previous flow: Branch → BigQuery (retired)
-
-How the dashboard data was loaded until 2026-11-02. The code is still in `dashboard/`; see [dashboard/README.md](dashboard/README.md).
-
-![Meta connects to Branch.io, then BigQuery and Data Studio. Meta also connects directly to Slack.](assets/kotc-data-flow.png)
-
-**Inbox → BigQuery** — drop a Branch export into `inbox/` (or `dashboard/inbox/`). The watcher cleaned the file and appended its rows to `kotc-dashboard-auto-update.branch.daily_campaign_metrics`, then deleted the file:
-
-```bash
-cd dashboard
-./scripts/setup_local.sh
-./scripts/install_inbox_watch.sh
-```
-
-Appends were not de-duplicated, so overlapping exports left duplicate rows (40 date/partner/campaign/platform groups; the Sheet has the same ones).
-
-## Not running
-
-These programs exist but do not execute until you flip the flag:
-
-- `meta-monitor/src/pause_flagged_ads.py` — `EXECUTE_PAUSE = False`
-- `meta-monitor/src/meta_to_bigquery.py` — `EXECUTE_LOAD = False` (would write to BigQuery, which is retired)
-- `dashboard/src/branch_to_bigquery.py` — `EXECUTE_LOAD = False` (no scheduled Branch sync)
-
 ## Secrets
 
-Do not commit `.env`, `local.env`, or service-account JSON.
+Do not commit `.env`, `local.env` or service-account JSON.
 
-GitHub Actions (Slack): `META_ACCESS_TOKEN`, `SLACK_WEBHOOK_URL`  
-Old inbox flow: `BRANCH_EMAIL`, `BRANCH_PASSWORD`, `GOOGLE_APPLICATION_CREDENTIALS` in `dashboard/.env`
+GitHub Actions: `META_ACCESS_TOKEN`, `SLACK_WEBHOOK_URL`
