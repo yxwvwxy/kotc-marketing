@@ -1,6 +1,6 @@
 # KOTC Marketing Dashboard Update
 
-> **Retired 2026-11-02.** No new Branch data will be loaded. The final data is in the Google Sheet [Branch Data MCAT App](https://docs.google.com/spreadsheets/d/1-H_EV3dqF62blGc4p2F7CwQvInbGbgQT7TvsFmkgnhs/edit), which the MCAT pages of the dashboard read. The BigQuery table was exported to `bigquery/data/bq_backup_branch_daily_campaign_metrics_2026-11-02.csv` (local only) before the free trial ended, and the inbox watcher was uninstalled (`./scripts/install_inbox_watch.sh` puts it back). Everything below describes how the pipeline worked.
+> **Retired 2026-11-02.** No new Branch data will be loaded. The final data is in the Google Sheet Branch Data MCAT App (real data, so its link is not kept in this repo), which the MCAT pages of the dashboard read. The BigQuery table was exported to `bigquery/data/bq_backup_branch_daily_campaign_metrics_2026-11-02.csv` (local only) before the free trial ended, and the inbox watcher was uninstalled (`./scripts/install_inbox_watch.sh` puts it back). Everything below describes how the pipeline worked.
 
 MMP → BigQuery → Looker Studio.
 

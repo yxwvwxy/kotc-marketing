@@ -16,13 +16,17 @@ dashboard/      Branch → BigQuery (retired 2026-11-02)
 reports/        Looker Studio report notes
 ```
 
-Data Studio Dashboard: [KOTC Performance Dashboard](https://datastudio.google.com/reporting/317a5d82-23e2-4d51-9d52-1c692aa953fc/page/mkyEE)
+Data Studio Dashboard: KOTC Performance Dashboard (real data, so its link is not kept in this repo).
 
-New report (2026-11-04): [MCAT App Campaign Performance](https://lookerstudio.google.com/reporting/25d33782-219b-4456-8e65-4beb8e66830c). It covers key metrics with a switchable trend, the funnel, a breakdown by ad partner, and a breakdown by campaign. The Health and Top Ads pages are placeholders. Layout, field formulas and data caveats are in [reports/mcat-app-campaign-performance.md](reports/mcat-app-campaign-performance.md).
+New report (2026-11-04): MCAT App Campaign Performance (real data, so its link is not kept in this repo). It covers key metrics with a switchable trend, the funnel, a breakdown by ad partner, and a breakdown by campaign. The Health and Top Ads pages are placeholders. Layout, field formulas and data caveats are in [reports/mcat-app-campaign-performance.md](reports/mcat-app-campaign-performance.md).
+
+Mockup (2026-11-10): [MCAT App Campaign Performance Mockup](https://claude.ai/artifact/5wNnws224sAZE7XP6ehRV1). A static, sample-data design of the report above. It assumes about $350k of spend a month, and every number in it is made up. It fills in the Health and Top Ads pages, and its funnel is Installs → Register → Trial Starts → Purchases. It is private to the owner until shared.
+
+Demo (2026-11-10): [MCAT App Campaign Performance Dashboard Demo](https://lookerstudio.google.com/reporting/41c3492f-5bfd-42f8-bf50-79a8c8802ca2). A copy of the report above that reads the sample-data Sheet [MCAT App Campaign Performance Dashboard Demo Data](https://docs.google.com/spreadsheets/d/1yJotAZ1UBTn9lE5so7YsuKIjR1T1USKOA0OFRjdbDko/edit) instead of Branch data. The Sheet holds one month (July 2026) of made-up numbers that match the mockup.
 
 ## Current status (2026-11-02)
 
-No new Branch data will be added. The final Branch data lives in the Google Sheet [Branch Data MCAT App](https://docs.google.com/spreadsheets/d/1-H_EV3dqF62blGc4p2F7CwQvInbGbgQT7TvsFmkgnhs/edit) (`Sheet1`):
+No new Branch data will be added. The final Branch data lives in the Google Sheet Branch Data MCAT App (`Sheet1`; real data, so its link is not kept in this repo):
 
 - 13,703 rows, 2024-04-15 → 2026-09-30, same columns as the old BigQuery table.
 - Checked row by row against BigQuery on 2026-11-02: identical, except BigQuery `NULL`s are `0` in the Sheet.
@@ -35,10 +39,10 @@ Both sheets the dashboard reads are owned by vivienneyang710@gmail.com:
 
 | Data Studio data source | Sheet | Used by |
 |---|---|---|
-| `MCAT App` | [Branch Data MCAT App](https://docs.google.com/spreadsheets/d/1-H_EV3dqF62blGc4p2F7CwQvInbGbgQT7TvsFmkgnhs/edit) (through 2026-09-30) | MCAT Overall, MCAT Campaign, Magnitude Digital, and the NCLEX page's Ad Partner / Platform dropdowns |
-| `NCLEX` | [Branch Data NCLEX](https://docs.google.com/spreadsheets/d/1ljZzZ1Cfh_yGYEiylCFl1XdaUE7h8hDr5pSqftBBaiY/edit) | NCLEX Overall charts |
+| `MCAT App` | Branch Data MCAT App (through 2026-09-30) | MCAT Overall, MCAT Campaign, Magnitude Digital, and the NCLEX page's Ad Partner / Platform dropdowns |
+| `NCLEX` | Branch Data NCLEX | NCLEX Overall charts |
 
-The dashboard never read BigQuery directly. Until 2026-11-02 it read copies of these sheets owned by another account (MCAT: `1hTAv0HCI…`, which stopped at 2026-07-29; NCLEX: `1G0OYssa…`, identical to the new one, 723 rows), and MCAT Overall was broken: 4 components were on a Supabase PostgreSQL source (`daily_campaign_metrics`) and its CPI / CPP / CPC formulas used the Supabase field names. On 2026-11-02:
+The dashboard never read BigQuery directly. Until 2026-11-02 it read copies of these sheets owned by another account (the MCAT copy stopped at 2026-07-29; the NCLEX copy was identical to the new one, 723 rows), and MCAT Overall was broken: 4 components were on a Supabase PostgreSQL source (`daily_campaign_metrics`) and its CPI / CPP / CPC formulas used the Supabase field names. On 2026-11-02:
 
 - `MCAT App` and `NCLEX` were reconnected to the sheets above; the Magnitude page picks up Aug–Sep 2026 as a result.
 - The 4 Supabase components were moved to `MCAT App`; every CPI / CPP / CPC formula is now `SUM(Cost) / SUM(Installs | Purchases | Clicks)`.
