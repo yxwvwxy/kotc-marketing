@@ -1,6 +1,6 @@
 # KOTC Marketing
 
-Marketing reporting for the KOTC MCAT app. Meta (Facebook & Instagram) app install campaigns are checked every day and summarized in Slack, with high-CPI ads flagged. Campaign data from the MMP (Branch.io) feeds a Looker Studio dashboard.
+A daily marketing data pipeline supporting cross-channel paid advertising reporting. Campaign data from the Branch MMP flows through BigQuery into a Looker Studio dashboard covering cost, the install-to-purchase funnel, ad partners, campaigns and top ads. It sends daily Slack reports on app install campaigns, flagging underperforming ads.
 
 <img src="assets/kotc-data-flow.png" alt="Meta connects to Branch.io, then BigQuery and Data Studio. Meta also connects directly to Slack." width="520">
 
